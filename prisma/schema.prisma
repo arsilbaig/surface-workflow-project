@@ -9,12 +9,20 @@ datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
+model Event {
+  id          Int        @id @default(autoincrement())
+  eventName   String
+  eventData   EventData?  @relation("EventToEventData")
+  timestamp   DateTime    @default(now())
+}
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model EventData {
+  id           Int      @id @default(autoincrement())
+  elementId    String?  
+  elementType  String?
+  elementClass String?  
+  url          String?
 
-    @@index([name])
+  eventId      Int?     @unique
+  Event        Event?   @relation("EventToEventData", fields: [eventId], references: [id])
 }

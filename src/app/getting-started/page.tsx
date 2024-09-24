@@ -1,15 +1,18 @@
-"use client"
-// /app/getting-started/page.jsx
-import React, { useState } from 'react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { solarizedlight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+"use client";
+import React, { useState, useEffect } from "react";
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
+import { solarizedlight } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 export default function GettingStartedPage() {
-    const [isFirstAccordionOpen, setIsFirstAccordionOpen] = useState(false);
-    const [isSecondAccordionOpen, setIsSecondAccordionOpen] = useState(false);
+  const [isFirstAccordionOpen, setIsFirstAccordionOpen] = useState(false);
+  const [isSecondAccordionOpen, setIsSecondAccordionOpen] = useState(false);
 
-    // JavaScript code to display in the accordion
-    const codeString = `
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [copyMessage, setCopyMessage] = useState("");
+
+  const codeString = `
     (function() {
       const surfaceTag = document.createElement('script');
       surfaceTag.src = "https://example.com/surface-tag.js";
@@ -22,89 +25,149 @@ export default function GettingStartedPage() {
     })();
   `;
 
-    return (
-        <div>
-            <h2 className="text-xl font-semibold mb-6">Getting started</h2>
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch("/api/event");
+        if (!response.ok) {
+          throw new Error("Failed to fetch events");
+        }
+        const data = await response.json();
+        setEvents(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-            {/* First Accordion - Install Surface Tag */}
-            <div className="mb-4">
-                <div
-                    onClick={() => setIsFirstAccordionOpen(!isFirstAccordionOpen)}
-                    className="cursor-pointer bg-gray-100 p-4 rounded-lg flex justify-between items-center"
-                >
-                    <div>
-                        <h3 className="font-semibold">Install Surface Tag on your site</h3>
-                        <p className="text-gray-500">Enable tracking and analytics.</p>
-                    </div>
-                    <button className="bg-blue-500 text-white px-4 py-2 rounded-lg">
-                        Install tag
-                    </button>
-                </div>
-                {isFirstAccordionOpen && (
-                    <div className="bg-gray-50 p-4 transition-all duration-300">
-                        <p>Step 1: Add the following code to your website to install the Surface Tag:</p>
-                        <SyntaxHighlighter language="javascript" style={solarizedlight}  showLineNumbers={true}>
-                            {codeString}
-                        </SyntaxHighlighter>
-                    </div>
-                )}
-            </div>
+    fetchEvents();
+  }, []); 
 
-            {/* Second Accordion - Test Surface Tag Events */}
-            <div className="mb-4">
-                <div
-                    onClick={() => setIsSecondAccordionOpen(!isSecondAccordionOpen)}
-                    className="cursor-pointer bg-gray-100 p-4 rounded-lg flex justify-between items-center"
-                >
-                    <div>
-                        <h3 className="font-semibold">Test Surface Tag Events</h3>
-                        <p className="text-gray-500">Test if the Surface Tag is properly emitting events.</p>
-                    </div>
-                    <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg">
-                        Test Tag
-                    </button>
-                </div>
-                {isSecondAccordionOpen && (
-                    <div className="bg-gray-50 p-4 transition-all duration-300">
-                        <table className="min-w-full table-auto bg-white shadow-md rounded-lg">
-                            <thead className="bg-gray-100 text-left">
-                                <tr>
-                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Event</th>
-                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Visitor</th>
-                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Metadata</th>
-                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Created at</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                <tr>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Track</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">37d272f6-877b-47c6-98e5-5156f</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{`{}`}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">9/15/2024, 5:08:56 PM</td>
-                                </tr>
-                                <tr>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Page</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">e7ef515a-7a5b-4949-9f28-8ae34</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{`{"page_url": "https://withsurface.com/page-1"}`}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">9/15/2024, 5:09:35 PM</td>
-                                </tr>
-                                <tr>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Identity</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">42d467c8-3bd1-4519-9ae6-bfb0</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{`{"user_id": "42d467c8-3bd1-4519-9ae6-bfb00adcc01c"}`}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">9/15/2024, 5:12:19 PM</td>
-                                </tr>
-                                <tr>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Click</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">aa731c78-c4e0-4e4f-b515-6525c</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{`{"element_id": "button-element"}`}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">9/15/2024, 5:17:35 PM</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </div>
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+
+
+  const handleCopySnippet = async () => {
+    try {
+      await navigator.clipboard.writeText(codeString);
+      setCopyMessage("Copied!"); 
+      setTimeout(() => setCopyMessage(""), 1000); 
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="mb-6 text-xl font-semibold">Getting started</h2>
+
+      <div className="mb-4">
+        <div
+          onClick={() => setIsFirstAccordionOpen(!isFirstAccordionOpen)}
+          className="flex cursor-pointer items-center justify-between rounded-lg bg-gray-100 p-4"
+        >
+          <div>
+            <h3 className="font-semibold">Install Surface Tag on your site</h3>
+            <p className="text-gray-500">Enable tracking and analytics.</p>
+          </div>
+          <button className="rounded-lg bg-blue-500 px-4 py-2 text-white">
+            Install tag
+          </button>
         </div>
-    );
+        {isFirstAccordionOpen && (
+          <div className="bg-gray-50 p-4 transition-all duration-300">
+            <div className="flex flex-row justify-between">
+            <p>
+              Step 1: Add the following code to your website to install the
+              Surface Tag:
+            </p>
+            <button className="rounded-lg bg-blue-500 px-4 py-2 text-white" onClick={handleCopySnippet}>
+            Copy Snippet
+          </button>
+          </div>
+          {copyMessage && <p className="mt-2 text-green-600 flex justify-end">{copyMessage}</p>}
+           
+            <SyntaxHighlighter
+              language="javascript"
+              style={solarizedlight}
+              showLineNumbers={true}
+            >
+              {codeString}
+            </SyntaxHighlighter>
+          </div>
+        )}
+      </div>
+
+      <div className="mb-4">
+        <div
+          onClick={() => setIsSecondAccordionOpen(!isSecondAccordionOpen)}
+          className="flex cursor-pointer items-center justify-between rounded-lg bg-gray-100 p-4"
+        >
+          <div>
+            <h3 className="font-semibold">Test Surface Tag Events</h3>
+            <p className="text-gray-500">
+              Test if the Surface Tag is properly emitting events.
+            </p>
+          </div>
+          <button className="rounded-lg bg-gray-200 px-4 py-2 text-gray-700">
+            Test Tag
+          </button>
+        </div>
+        {isSecondAccordionOpen && (
+         <div className="bg-gray-50 p-4 transition-all duration-300">
+         <table className="min-w-full table-auto rounded-lg bg-white shadow-md">
+           <thead className="bg-gray-100 text-left">
+             <tr>
+               <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider text-gray-500">
+                 Event
+               </th>
+               <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider text-gray-500">
+                 Visitor
+               </th>
+               <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider text-gray-500">
+                 Metadata
+               </th>
+               <th className="px-6 py-3 text-xs font-medium uppercase tracking-wider text-gray-500">
+                 Created at
+               </th>
+             </tr>
+           </thead>
+           <tbody className="divide-y divide-gray-200 bg-white">
+             {events?.events?.map((event, index) => (
+               <tr key={index}>
+                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+                   {event.eventName}
+                 </td>
+                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+                   {event.eventData ? event.eventData.elementId : "N/A"}
+                 </td>
+                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+                   {event.eventData ? JSON.stringify({
+                     elementType: event.eventData.elementType,
+                     elementClass: event.eventData.elementClass,
+                     url: event.eventData.url,
+                   }) : "{}"}
+                 </td>
+                 <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
+                   {new Date(event.timestamp).toLocaleString("en-US", {
+                     month: "numeric",
+                     day: "numeric",
+                     year: "numeric",
+                     hour: "numeric",
+                     minute: "numeric",
+                     second: "numeric",
+                     hour12: true,
+                   })}
+                 </td>
+               </tr>
+             ))}
+           </tbody>
+         </table>
+       </div>
+       
+        )}
+      </div>
+    </div>
+  );
 }
